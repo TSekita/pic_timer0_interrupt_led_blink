@@ -43,16 +43,16 @@
 #define _XTAL_FREQ 1000000 // INTERNAL OSCILLATOR Hz
 
 void timer0_init(void) {
-    T0CON1bits.T0CS = 0b011;
-    T0CON1bits.T0CKPS = 0b1001;
-    TMR0H = 0xF0;
-    TMR0L = 0x60;
+    T0CON1bits.T0CS = 0b011;    // HFINTOSC
+    T0CON1bits.T0CKPS = 0b1001; // 1:256
+    TMR0H = 0xF0;               // 65535 - (10000000 / 512 * 2) = 61629
+    TMR0L = 0x8D;               // TMR0H = 61629 >> 8 , TMR0L = 61629 & 0xFF
 
-    PIR0bits.TMR0IF = 0;
-    PIE0bits.TMR0IE = 1;
+    PIR0bits.TMR0IF = 0;        // Timer0 overflow flag = 0
+    PIE0bits.TMR0IE = 1;        // Timer0 enabled
 
-    T0CON0bits.T016BIT = 1;
-    T0CON0bits.T0EN = 1;
+    T0CON0bits.T016BIT = 1;     // Timer0 is a 16-bit timer
+    T0CON0bits.T0EN = 1;        // Timer0 start
 }
 
 void init(void) {
@@ -69,7 +69,7 @@ void __interrupt() isr(void) {
     if (PIR0bits.TMR0IF) {
         PIR0bits.TMR0IF = 0;
         TMR0H = 0xF0;
-        TMR0L = 0x60;
+        TMR0L = 0x8D;
 
         LATAbits.LATA1 ^= 1;
     }
